@@ -59,8 +59,6 @@ function updateEvent(event) {
 			// Prevent update too often
 			const timestamp = Date.now();
 
-			console.log("run");
-
 			if(event.lastUpdate && event.lastUpdate + 5 * 60000 > timestamp) return;
 
 			event.lastUpdate = timestamp;
