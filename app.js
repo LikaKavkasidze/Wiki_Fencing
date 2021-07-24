@@ -11,15 +11,12 @@ const nameFmt = require("./lib/formatters/wiki_name")(config.dictionnary);
 const scraper = require("./lib/scrapers/olympics")(nameFmt, config.defaultCountry);
 const wikiFmt = require("./lib/serializers/wikicode_serializer");
 const pageEditorFactory = require("./lib/serializers/page_editor");
+const sanityCheck = require("./lib/utils/sanity_checker");
 
 const bot = new mw(config.bot);
 const app = express();
 
 const PageEditor = pageEditorFactory(bot);
-
-/*const ordering = [
-	0, 4, 8, 12, 3, 7, 11, 15, 1, 5, 9, 13, 2, 6, 10, 14
-]*/
 
 // Log the bot in!
 bot.logIn((e, data) => {
@@ -37,6 +34,8 @@ function updateEvent(event) {
 		.then(res => {
 			const scraped = scraper(res);
 			const editor = new PageEditor(event.wikiPage);
+
+			sanityCheck(scraped, "t32", event.parsedRankings);
 
 			// No support for partial T64 by now
 			// No support for T4 & T2 either
@@ -78,6 +77,9 @@ const requestHandler = scheduledEvent =>
 
 for(const scheduledEvent of config.schedule) {
 	const scheduledName = scheduledEvent.shortName;
+
+	// Cache ranking names
+	scheduledEvent.parsedRankings = scheduledEvent.initialRankings.map(([name, nation]) => nameFmt(name, nation));
 
 	app.get(`/${scheduledName}`, requestHandler(scheduledEvent));
 }
