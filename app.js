@@ -59,6 +59,8 @@ function updateEvent(event) {
 			// Prevent update too often
 			const timestamp = Date.now();
 
+			console.log("run");
+
 			if(event.lastUpdate && event.lastUpdate + 5 * 60000 > timestamp) return;
 
 			event.lastUpdate = timestamp;
@@ -131,6 +133,32 @@ function updateAll() {
 }
 
 // Auto-pooling every minute
-setInterval(updateAll, 60000);
+let updateIntervalId = setInterval(updateAll, 60000);
+let running = true;
+
+app.get("/stop", (req, res) => {
+	if(running) {
+		console.log("Pooling was stopped");
+		clearInterval(updateIntervalId);
+		running = false;
+
+		res.send("Bot stopped.");
+	} else {
+		res.status(405).send("Already stopped.");
+	}
+});
+
+app.get("/start", (req, res) => {
+	if(!running) {
+		console.log("Pooling was started");
+		updateIntervalId = setInterval(updateAll, 60000);
+		running = true;
+
+		res.send("Bot started.");
+	} else {
+		res.status(405).send("Already running.");
+	}
+});
 
 app.listen(3000);
+updateAll();
