@@ -22,6 +22,4 @@ node_modules/
 *.tgz
 
 # Personal configuration
-config/**/*.json
-!config/example.json
-!config/lang/*.json
+config/**/*
