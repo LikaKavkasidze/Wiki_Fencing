@@ -158,5 +158,4 @@ app.get("/start", (req, res) => {
 	}
 });
 
-app.listen(3000);
-updateAll();
+app.listen(3141);
